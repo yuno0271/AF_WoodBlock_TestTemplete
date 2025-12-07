@@ -8,16 +8,16 @@ public class Grid : MonoBehaviour
     private int columns = 0;
     [SerializeField]
     private int rows = 0;
-    [SerializeField]
-    float squaresGap = 0.1f;
+    //[SerializeField]
+    //float squaresGap = 0.1f;
     [SerializeField]
     private GameObject gridSquare;
-    [SerializeField]
-    private Vector2 startPosition = new Vector2 (0, 0);
+    //[SerializeField]
+    //private Vector2 startPosition = new Vector2 (0, 0);
     [SerializeField]
     private float squareScale = 0.5f;
-    [SerializeField]
-    private float everySquareOffset = 0.0f;
+    //[SerializeField]
+    //private float everySquareOffset = 0.0f;
 
     private Vector2 _offset = new Vector2 (0, 0);
     private List<GameObject> _gridSquares = new List<GameObject> ();
@@ -52,51 +52,51 @@ public class Grid : MonoBehaviour
         }
     }
 
-    private void SetGridSquaresPositions()
-    {
-        int columnNumber = 0;
-        int rowNumber = 0;
-        Vector2 squareGapNumber = new Vector2(0, 0);
-        bool rowMoved = false;
+    //private void SetGridSquaresPositions()
+    //{
+    //    int columnNumber = 0;
+    //    int rowNumber = 0;
+    //    Vector2 squareGapNumber = new Vector2(0, 0);
+    //    bool rowMoved = false;
 
-        var squareRect = _gridSquares[0].GetComponent<RectTransform>();
-        _offset.x = squareRect.rect.width * squareRect.transform.localScale.x + everySquareOffset;
-        _offset.y = squareRect.rect.height * squareRect.transform.localScale.y + everySquareOffset;
+    //    var squareRect = _gridSquares[0].GetComponent<RectTransform>();
+    //    _offset.x = squareRect.rect.width * squareRect.transform.localScale.x + everySquareOffset;
+    //    _offset.y = squareRect.rect.height * squareRect.transform.localScale.y + everySquareOffset;
 
-        foreach(GameObject square in _gridSquares)
-        {
-            if(columnNumber + 1 > columns)
-            {
-                squareGapNumber.x = 0;
-                // go to the next column
-                columnNumber = 0;
-                rowNumber++;
-                rowMoved = true;
-            }
+    //    foreach(GameObject square in _gridSquares)
+    //    {
+    //        if(columnNumber + 1 > columns)
+    //        {
+    //            squareGapNumber.x = 0;
+    //            // go to the next column
+    //            columnNumber = 0;
+    //            rowNumber++;
+    //            rowMoved = true;
+    //        }
 
-            var pos_x_Offset = _offset.x * columnNumber + (squareGapNumber.x * squaresGap);
-            var pos_y_Offset = _offset.y * rowNumber + (squareGapNumber.y * squaresGap);
+    //        var pos_x_Offset = _offset.x * columnNumber + (squareGapNumber.x * squaresGap);
+    //        var pos_y_Offset = _offset.y * rowNumber + (squareGapNumber.y * squaresGap);
 
-            if(columnNumber > 0 && columnNumber % 3 == 0)
-            {
-                squareGapNumber.x++;
-                pos_x_Offset += squaresGap;
-            }
+    //        if(columnNumber > 0 && columnNumber % 3 == 0)
+    //        {
+    //            squareGapNumber.x++;
+    //            pos_x_Offset += squaresGap;
+    //        }
 
-            if (rowNumber > 0 && rowNumber % 3 == 0 && rowMoved == false)
-            {
-                rowMoved = true;
-                squareGapNumber.y++;
-                pos_y_Offset += squaresGap;
-            }
+    //        if (rowNumber > 0 && rowNumber % 3 == 0 && rowMoved == false)
+    //        {
+    //            rowMoved = true;
+    //            squareGapNumber.y++;
+    //            pos_y_Offset += squaresGap;
+    //        }
 
-            square.GetComponent<RectTransform>().anchoredPosition = new Vector2(startPosition.x + pos_x_Offset,
-                startPosition.y - pos_y_Offset);
+    //        square.GetComponent<RectTransform>().anchoredPosition = new Vector2(startPosition.x + pos_x_Offset,
+    //            startPosition.y - pos_y_Offset);
 
-            square.GetComponent<RectTransform>().localPosition = new Vector3(startPosition.x + pos_x_Offset,
-                startPosition.y - pos_y_Offset, 0.0f);
+    //        square.GetComponent<RectTransform>().localPosition = new Vector3(startPosition.x + pos_x_Offset,
+    //            startPosition.y - pos_y_Offset, 0.0f);
 
-            columnNumber++; 
-        }
-    }
+    //        columnNumber++; 
+    //    }
+    //}
 }
