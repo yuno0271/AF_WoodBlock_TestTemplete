@@ -5,6 +5,8 @@ using UnityEngine;
 public class Grid : MonoBehaviour
 {
     [SerializeField]
+    private ShapeStorage shapeStorage;
+    [SerializeField]
     private int columns = 0;
     [SerializeField]
     private int rows = 0;
@@ -19,8 +21,8 @@ public class Grid : MonoBehaviour
     //[SerializeField]
     //private float everySquareOffset = 0.0f;
 
-    private Vector2 _offset = new Vector2 (0, 0);
-    private List<GameObject> _gridSquares = new List<GameObject> ();
+    private Vector2 _offset = new Vector2(0, 0);
+    private List<GameObject> _gridSquares = new List<GameObject>();
 
     private void Start()
     {
@@ -39,16 +41,61 @@ public class Grid : MonoBehaviour
         // 5, 6, 7, 8, 9
 
         int squareIndex = 0;
-        for(var row = 0;row < rows;row++)
+        for (var row = 0; row < rows; row++)
         {
-            for(var col = 0;col < columns;col++)
+            for (var col = 0; col < columns; col++)
             {
                 _gridSquares.Add(Instantiate(gridSquare) as GameObject);
+                _gridSquares[_gridSquares.Count - 1].GetComponent<GridSquare>().SquareIndex = squareIndex;
                 _gridSquares[_gridSquares.Count - 1].transform.SetParent(this.transform);
-                _gridSquares[_gridSquares.Count-1].transform.localScale = new Vector3(squareScale,squareScale,squareScale);
-                _gridSquares[_gridSquares.Count-1].GetComponent<GridSquare>().SetImage(squareIndex % 2 == 0);
+                _gridSquares[_gridSquares.Count - 1].transform.localScale = new Vector3(squareScale, squareScale, squareScale);
+                //_gridSquares[_gridSquares.Count-1].GetComponent<GridSquare>().SetImage(squareIndex % 2 == 0);
                 squareIndex++;
             }
+        }
+    }
+
+    private void OnEnable()
+    {
+        GameEvents.CheckIfShapeCanBePlaced += CheckIfShapeCanBePlaced;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.CheckIfShapeCanBePlaced -= CheckIfShapeCanBePlaced;
+    }
+
+    private void CheckIfShapeCanBePlaced()
+    {
+        var squareIndexes = new List<int>();
+
+        foreach(var square in _gridSquares)
+        {
+            var gridSquare = square.GetComponent<GridSquare>();
+
+            if(gridSquare.Selected && !gridSquare.SquareOccupied)
+            {
+                squareIndexes.Add(gridSquare.SquareIndex);
+                gridSquare.Selected = false;
+                //gridSquare.ActivateSquare();
+            }
+        }
+
+        var currentSelectedShape = shapeStorage.GetCurrentSelectedShape();
+        if (currentSelectedShape == null) return; // there is no selected shape
+
+        if(currentSelectedShape.TotalSquareNumber == squareIndexes.Count)
+        {
+            foreach(var squareIndex in squareIndexes)
+            {
+                _gridSquares[squareIndex].GetComponent<GridSquare>().PlaceShapeOnBoard();
+            }
+
+            currentSelectedShape.DeactivateShape();
+        }
+        else
+        {
+            GameEvents.MoveShapeToStartPosition();
         }
     }
 
