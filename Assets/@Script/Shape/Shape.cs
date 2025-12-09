@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks.Triggers;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,7 +25,6 @@ public class Shape : MonoBehaviour, IPointerClickHandler, IPointerUpHandler, IBe
     private Canvas _canvas;
     private Vector3 _startPosition;
     private bool _shapeActive = true;
-    public bool Dragged { get; private set; }
 
     private void Awake()
     {
@@ -39,11 +39,13 @@ public class Shape : MonoBehaviour, IPointerClickHandler, IPointerUpHandler, IBe
     private void OnEnable()
     {
         GameEvents.MoveShapeToStartPosition += MoveShapeToStartPosition;
+        GameEvents.SetShapeInActive += SetShapeInactive;
     }
 
     private void OnDisable()
     {
         GameEvents.MoveShapeToStartPosition -= MoveShapeToStartPosition;
+        GameEvents.SetShapeInActive -= SetShapeInactive;
     }
 
     public bool IsOnStartPosition()
@@ -75,6 +77,17 @@ public class Shape : MonoBehaviour, IPointerClickHandler, IPointerUpHandler, IBe
         _shapeActive=false;
     }
 
+    private void SetShapeInactive()
+    {
+        if (IsOnStartPosition() == false && IsAnyOfShapeSquareActive())
+        {
+            foreach(var square in _currentShape)
+            {
+                square.gameObject.SetActive(false);
+            }
+        }
+    }
+
     public void ActivateShape()
     {
         if (!_shapeActive)
@@ -96,6 +109,7 @@ public class Shape : MonoBehaviour, IPointerClickHandler, IPointerUpHandler, IBe
 
     public void CreateShape(ShapeData shapeData)
     {
+        _transform.transform.localPosition = _startPosition;
         CurrentShapeData = shapeData;
         TotalSquareNumber = GetNumberOfSquares(shapeData);
 
@@ -179,7 +193,6 @@ public class Shape : MonoBehaviour, IPointerClickHandler, IPointerUpHandler, IBe
     public void OnBeginDrag(PointerEventData eventData)
     {
         this.GetComponent<RectTransform>().localScale = shapeSelectedScale;
-        Dragged = true;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -198,7 +211,6 @@ public class Shape : MonoBehaviour, IPointerClickHandler, IPointerUpHandler, IBe
     {
         this.GetComponent<RectTransform>().localScale = _shapeStartScale;
         GameEvents.CheckIfShapeCanBePlaced();
-        Dragged = false;
     }
 
     public void OnPointerDown(PointerEventData eventData)

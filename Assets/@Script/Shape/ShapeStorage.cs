@@ -6,6 +6,16 @@ public class ShapeStorage : MonoBehaviour
     public List<ShapeData> shapeData;
     public List<Shape> shapeList;
 
+    private void OnEnable()
+    {
+        GameEvents.RequestNewShapes += RequestNewShapes;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.RequestNewShapes -= RequestNewShapes;
+    }
+
     private void Start()
     {
         foreach(var shape in shapeList)
@@ -19,11 +29,20 @@ public class ShapeStorage : MonoBehaviour
     {
         foreach(var shape in shapeList)
         {
-            if(shape.IsOnStartPosition() == false && shape.IsAnyOfShapeSquareActive() && shape.Dragged)
+            if(shape.IsOnStartPosition() == false && shape.IsAnyOfShapeSquareActive())
                 return shape;
         }
 
         Debug.LogError("There is no shape Selected!");
         return null;
+    }
+
+    private void RequestNewShapes()
+    {
+        foreach(var shape in shapeList)
+        {
+            var shapeIndex = Random.Range(0,shapeData.Count);
+            shape.RequestNewShape(shapeData[shapeIndex]);
+        }
     }
 }
