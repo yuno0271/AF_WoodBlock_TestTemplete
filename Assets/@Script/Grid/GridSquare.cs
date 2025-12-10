@@ -1,4 +1,7 @@
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -42,7 +45,11 @@ public class GridSquare : MonoBehaviour
 
     public void DeactivateSquare()
     {
-        activeImage.gameObject.SetActive(false);
+        activeImage.DOFade(0, 0.5f).OnComplete(() =>
+        {
+            activeImage.gameObject.SetActive(false);
+            activeImage.DOFade(1, 1.0f);
+        });
     }
 
     public void ClearOccupied()
@@ -53,7 +60,7 @@ public class GridSquare : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(SquareOccupied ==false)
+        if (SquareOccupied == false)
         {
             Selected = true;
             hoverImage.gameObject.SetActive(true);

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,6 +25,11 @@ public class Grid : MonoBehaviour
     private Vector2 _offset = new Vector2(0, 0);
     private List<GameObject> _gridSquares = new List<GameObject>();
     private LineIndicator _lineIndicator;
+    private bool isCombo = false;
+    private int _combo = 0;
+    private int _lineClearCount = 0;
+    private bool isGameOver = false;
+
     private void Start()
     {
         _lineIndicator = new LineIndicator(rows, columns);
@@ -110,7 +116,12 @@ public class Grid : MonoBehaviour
                 GameEvents.SetShapeInActive();
             }
 
-            CheckIfAnyLineIsCompleted();
+            //CheckIfAnyLineIsCompleted();
+
+            AudioManager.Instance.PlayPlaceBlockClip();
+            var score = CalculateLineCombo() + currentSelectedShape.TotalSquareNumber + _lineClearCount;
+            GameEvents.AddScores(score);
+            CheckIfPlayerLost();
         }
         else
         {
@@ -118,7 +129,7 @@ public class Grid : MonoBehaviour
         }
     }
 
-    void CheckIfAnyLineIsCompleted()
+    private int CheckIfAnyLineIsCompleted()
     {
         List<int[]> lines = new List<int[]>();
 
@@ -142,18 +153,45 @@ public class Grid : MonoBehaviour
 
         var completedLines = CheckIfSquareAreCompleted(lines);
 
-        if(completedLines > 2)
+        if (completedLines >= 2)
         {
             //TODO: Play Bonus animation.
         }
 
-        var totalScores = 10 * completedLines;
-        GameEvents.AddScores(totalScores);
-        CheckIfPlayerLost();
+        return completedLines;
+    }
+
+    private int CalculateLineCombo()
+    {
+        var completedLine = CheckIfAnyLineIsCompleted();
+
+        if (completedLine >=1 )
+        {
+            _combo++;
+            AudioManager.Instance.PlayLineClearClip();
+            if (isCombo)
+            {
+                AudioManager.Instance.PlayComboClip(_combo - 1);
+            }
+            else
+            {
+                isCombo = true;
+            }
+        }
+        else
+        {
+            isCombo = false;
+            _combo = 0;
+        }
+
+        var totalScores = _combo * completedLine;
+
+        return totalScores;
     }
 
     private int CheckIfSquareAreCompleted(List<int[]> data)
     {
+        _lineClearCount = 0;
         List<int[]> completedLines = new List<int[]>();
 
         var linesCompleted = 0;
@@ -185,6 +223,7 @@ public class Grid : MonoBehaviour
                 var comp = _gridSquares[squareIndex].GetComponent<GridSquare>();
                 comp.DeactivateSquare();
                 completed = true;
+                _lineClearCount++;
             }
 
             foreach (var squareIndex in line)
@@ -219,7 +258,8 @@ public class Grid : MonoBehaviour
         if(validShapes <= 0)
         {
             //GAME OVER
-            //GameEvents.GameOver(false);
+            isGameOver = true;
+            GameEvents.GameOver(false);
             Debug.Log("GAME OVER");
         }
     }
